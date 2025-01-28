@@ -3,6 +3,7 @@ import {
   CustomerField,
   CustomersTableType,
   InvoiceForm,
+  InvoiceLogs,
   InvoicesTable,
   InvoiceStatusObject,
   LatestInvoiceRaw,
@@ -234,4 +235,18 @@ export async function fetchFilteredCustomers(query: string) {
     console.error("Database Error:", err);
     throw new Error("Failed to fetch customer table.");
   }
+}
+
+// get invoice status change logs
+export async function fetchInvoiceLogsById({ id }: { id: string }) {
+  const data = await sql<InvoiceLogs>`
+  SELECT
+   *
+  FROM invoice_logs
+  WHERE
+      invoice_logs.invoice_id = ${id}
+  ORDER BY date DESC
+  `;
+
+  return data.rows;
 }

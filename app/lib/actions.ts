@@ -4,9 +4,10 @@ import { z } from "zod";
 import { sql } from "@vercel/postgres";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { signIn } from "@/auth";
+import { auth, signIn } from "@/auth";
 import { AuthError } from "next-auth";
 import { INVOICE_STATUS, InvoiceStatusObject } from "./definitions";
+import { fetchInvoiceById } from "./data";
 
 const FormSchema = z.object({
   id: z.string(),
@@ -98,6 +99,7 @@ export async function updateInvoice(
       message: "Missing Fields. Failed to Update Invoice.",
     };
   }
+  const invoice = await fetchInvoiceById(id);
 
   const { customerId, amount, status } = validatedFields.data;
   const amountInCents = amount * 100;
@@ -108,6 +110,15 @@ export async function updateInvoice(
       SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
       WHERE id = ${id}
     `;
+
+    if (invoice.status !== status) {
+      // create logs
+      await createInvoiceStatusLogs({
+        id,
+        old_status: invoice.status,
+        new_status: status,
+      });
+    }
   } catch (error) {
     return { message: "Database Error: Failed to Update Invoice." };
   }
@@ -118,8 +129,16 @@ export async function updateInvoice(
 
 export async function updateInvoiceStatus(id: string, status: INVOICE_STATUS) {
   try {
+    const invoice = await fetchInvoiceById(id);
     await sql`UPDATE invoices SET status = ${status} WHERE id = ${id}`;
-    console.log("updated")
+    if (invoice.status !== status) {
+      // create logs
+      await createInvoiceStatusLogs({
+        id,
+        old_status: invoice.status,
+        new_status: status,
+      });
+    }
     revalidatePath("/dashboard/invoices");
   } catch (error) {
     throw new Error("could not update invoice status");
@@ -129,6 +148,40 @@ export async function updateInvoiceStatus(id: string, status: INVOICE_STATUS) {
 export async function deleteInvoice(id: string) {
   await sql`DELETE FROM invoices WHERE id = ${id}`;
   revalidatePath("/dashboard/invoices");
+}
+
+// creates invoice status logs
+export async function createInvoiceStatusLogs({
+  id,
+  old_status,
+  new_status,
+}: {
+  id: string;
+  old_status: INVOICE_STATUS;
+  new_status: INVOICE_STATUS;
+}) {
+  try {
+    //       invoice_id UUID NOT NULL,
+    //       old_status VARCHAR(255) NOT NULL,
+    //       new_status VARCHAR(255) NOT NULL,
+    //       email TEXT NOT NULL UNIQUE,
+    //       date TIMESTAMP NOT NULL
+    const date = new Date().toUTCString()
+    const session = await auth();
+    if (session?.user) {
+      const res = await sql`
+      INSERT INTO invoice_logs (invoice_id, old_status, new_status, email, date)
+      VALUES (${id}, ${old_status}, ${new_status},${session.user.email}, ${date})
+    `;
+      console.log(res);
+    }
+  } catch (error) {
+    console.log(error);
+    // If a database error occurs, return a more specific error.
+    return {
+      message: "Database Error: Failed to Create Invoice.",
+    };
+  }
 }
 
 export async function authenticate(

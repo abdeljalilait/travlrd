@@ -1,8 +1,9 @@
 // import bcrypt from 'bcrypt';
-// import { db } from "@vercel/postgres";
+import { db } from "@vercel/postgres";
 // import { invoices, customers, revenue, users } from '../lib/placeholder-data';
 
-// const client = await db.connect();
+const client = await db.connect();
+
 
 // async function seedUsers() {
 //   await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
@@ -55,6 +56,24 @@
 //   return insertedInvoices;
 // }
 
+async function createInvoiceLogsTable() {
+  await client.sql`DROP TABLE invoice_logs`;
+  await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+  await client.sql`
+    CREATE TABLE IF NOT EXISTS invoice_logs (
+      id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      invoice_id UUID NOT NULL,
+      old_status VARCHAR(255) NOT NULL,
+      new_status VARCHAR(255) NOT NULL,
+      email TEXT NOT NULL,
+      date TIMESTAMP NOT NULL
+    );
+  `;
+
+  return true;
+}
+
+
 // async function seedCustomers() {
 //   await client.sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
@@ -102,21 +121,22 @@
 // }
 
 export async function GET() {
-  return Response.json({
-    message:
-      "Uncomment this file and remove this line. You can delete this file when you are finished.",
-  });
-  // try {
-  //   await client.sql`BEGIN`;
-  //   await seedUsers();
-  //   await seedCustomers();
-  //   await seedInvoices();
-  //   await seedRevenue();
-  //   await client.sql`COMMIT`;
+  // return Response.json({
+  //   message:
+  //     "Uncomment this file and remove this line. You can delete this file when you are finished.",
+  // });
+  try {
+    await client.sql`BEGIN`;
+    // await seedUsers();
+    // await seedCustomers();
+    // await seedInvoices();
+    // await seedRevenue();
+    // await createInvoiceLogsTable()
+    await client.sql`COMMIT`;
 
-  //   return Response.json({ message: 'Database seeded successfully' });
-  // } catch (error) {
-  //   await client.sql`ROLLBACK`;
-  //   return Response.json({ error }, { status: 500 });
-  // }
+    return Response.json({ message: 'Database seeded successfully' });
+  } catch (error) {
+    await client.sql`ROLLBACK`;
+    return Response.json({ error }, { status: 500 });
+  }
 }

@@ -64,6 +64,15 @@ export type InvoicesTable = {
   status: INVOICE_STATUS;
 };
 
+export type InvoiceLogs = {
+  id: string;
+  email: string;
+  invoice_id: string;
+  old_status: INVOICE_STATUS;
+  new_status: INVOICE_STATUS;
+  date: string;
+};
+
 export type CustomersTableType = {
   id: string;
   name: string;
