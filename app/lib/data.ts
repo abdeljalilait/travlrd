@@ -121,7 +121,6 @@ export async function fetchFilteredInvoices(
         }
       })
     );
-    console.log(invoices.rows)
     return invoices.rows;
   } catch (error) {
     console.error("Database Error:", error);

@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
-import { InvoiceStatusObject } from "./definitions";
+import { INVOICE_STATUS, InvoiceStatusObject } from "./definitions";
 
 const FormSchema = z.object({
   id: z.string(),
@@ -113,6 +113,16 @@ export async function updateInvoice(
 
   revalidatePath("/dashboard/invoices");
   redirect("/dashboard/invoices");
+}
+
+export async function updateInvoiceStatus(id: string, status: INVOICE_STATUS) {
+  try {
+    await sql`UPDATE invoices SET status = ${status} WHERE id = ${id}`;
+    console.log("updated")
+    revalidatePath("/dashboard/invoices");
+  } catch (error) {
+    throw new Error("could not update invoice status");
+  }
 }
 
 export async function deleteInvoice(id: string) {
