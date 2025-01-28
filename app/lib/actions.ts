@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth, signIn } from "@/auth";
 import { AuthError } from "next-auth";
-import { INVOICE_STATUS, InvoiceStatusObject } from "./definitions";
+import { type INVOICE_STATUS, InvoiceStatusObject } from "./definitions";
 import { fetchInvoiceById } from "./data";
 
 const FormSchema = z.object({

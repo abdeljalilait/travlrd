@@ -22,8 +22,8 @@ export default async function Page(props: {
     page?: string;
   }>;
 }) {
-  const cookiesStore = await cookies()
-  const lastTab = cookiesStore.get('lastTab')
+  // const cookiesStore = await cookies();
+  // const lastTab = cookiesStore.get("lastTab");
   const searchParams = await props.searchParams;
   const query = searchParams?.query || "";
   const statusQuery = searchParams?.status || "";

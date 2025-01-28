@@ -1,14 +1,14 @@
 import { sql } from "@vercel/postgres";
-import {
+import type {
   CustomerField,
   CustomersTableType,
   InvoiceForm,
   InvoiceLogs,
   InvoicesTable,
-  InvoiceStatusObject,
   LatestInvoiceRaw,
   Revenue,
 } from "./definitions";
+import { InvoiceStatusObject } from "./definitions";
 import { formatCurrency, isPendingInvoiceOverdue } from "./utils";
 
 export async function fetchRevenue() {
