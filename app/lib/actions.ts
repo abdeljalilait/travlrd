@@ -21,6 +21,7 @@ const FormSchema = z.object({
       InvoiceStatusObject.overdue,
       InvoiceStatusObject.paid,
       InvoiceStatusObject.pending,
+      InvoiceStatusObject.canceled,
     ],
     {
       invalid_type_error: "Please select an invoice status.",

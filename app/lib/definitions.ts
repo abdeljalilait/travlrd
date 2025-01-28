@@ -20,6 +20,7 @@ export const InvoiceStatusObject = {
   pending: "pending",
   paid: "paid",
   overdue: "overdue",
+  canceled: "canceled",
 } as const;
 
 export type INVOICE_STATUS = keyof typeof InvoiceStatusObject;
