@@ -1,16 +1,20 @@
-'use client';
+"use client";
 
-import { CustomerField, InvoiceForm } from '@/app/lib/definitions';
+import {
+  CustomerField,
+  InvoiceForm,
+  InvoiceStatusObject,
+} from "@/app/lib/definitions";
 import {
   CheckIcon,
   ClockIcon,
   CurrencyDollarIcon,
   UserCircleIcon,
-} from '@heroicons/react/24/outline';
-import Link from 'next/link';
-import { Button } from '@/app/ui/button';
-import { updateInvoice, State } from '@/app/lib/actions';
-import { useActionState } from 'react';
+} from "@heroicons/react/24/outline";
+import Link from "next/link";
+import { Button } from "@/app/ui/button";
+import { updateInvoice, State } from "@/app/lib/actions";
+import { useActionState } from "react";
 
 export default function EditInvoiceForm({
   invoice,
@@ -99,29 +103,34 @@ export default function EditInvoiceForm({
           </legend>
           <div className="rounded-md border border-gray-200 bg-white px-[14px] py-3">
             <div className="flex gap-4">
-              <div className="flex items-center">
-                <input
-                  id="pending"
-                  name="status"
-                  type="radio"
-                  value="pending"
-                  defaultChecked={invoice.status === 'pending'}
-                  className="h-4 w-4 border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
-                />
-                <label
-                  htmlFor="pending"
-                  className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600"
-                >
-                  Pending <ClockIcon className="h-4 w-4" />
-                </label>
-              </div>
-              <div className="flex items-center">
+              {Object.values(InvoiceStatusObject).map((status, index) => {
+                return (
+                  <div key={index} className="flex items-center">
+                    <input
+                      id={status}
+                      name="status"
+                      type="radio"
+                      value={status}
+                      defaultChecked={invoice.status === status}
+                      className="h-4 w-4 border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
+                    />
+                    <label
+                      htmlFor={status}
+                      className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600"
+                    >
+                      {status}
+                    </label>
+                  </div>
+                );
+              })}
+
+              {/* <div className="flex items-center">
                 <input
                   id="paid"
                   name="status"
                   type="radio"
                   value="paid"
-                  defaultChecked={invoice.status === 'paid'}
+                  defaultChecked={invoice.status === "paid"}
                   className="h-4 w-4 border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
                 />
                 <label
@@ -130,7 +139,7 @@ export default function EditInvoiceForm({
                 >
                   Paid <CheckIcon className="h-4 w-4" />
                 </label>
-              </div>
+              </div> */}
             </div>
           </div>
           <div id="status-error" aria-live="polite" aria-atomic="true">
